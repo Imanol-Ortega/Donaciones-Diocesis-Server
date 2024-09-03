@@ -6,8 +6,6 @@ import { POSTGRES_URL } from './config.js';
 export const pool = new pg.Pool({
     connectionString: POSTGRES_URL,
 })
-
-
 /*export const pool = new pg.Pool({
     user: "postgres",
     host: "localhost",

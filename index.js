@@ -8,7 +8,7 @@ import institucionRoutes from './routes/institucion.routes.js'
 import donadoRoutes from './routes/donado.routes.js'
 
 
-const app = express();
+const app = express()
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
