@@ -2,9 +2,9 @@ import {pool} from "../db.js";
 
 export const guardarDonacion = async(req,res)=>{
     try {
-        const {nombre,telefono,direccion,donacion,observacion} = req.body;
-        const result = await pool.query('INSERT INTO donante (donantenombre,donantetelefono,donantedireccion,donantedonacion,donanteobservacion,donanteestado) VALUES ($1,$2,$3,$4,$5,$6)',
-                                        [nombre,telefono,direccion,donacion,observacion,0])
+        const {nombre,telefono,latitude,longitude,donacion,observacion} = req.body;
+        const result = await pool.query('INSERT INTO donante (donantenombre,donantetelefono,donantelatitud,donantelongitud,donantedonacion,donanteobservacion,donanteestado) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+                                        [nombre,telefono,latitude,longitude,donacion,observacion,0])
 
         res.status(200).json({message:'Guardado Correctamente'})
 
