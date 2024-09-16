@@ -38,3 +38,12 @@ export const obtenerUnInventario = async(req,res)=>{
         return res.status(500).json({message:error.message})
     }
 };
+
+export const eliminarUnInventario = async(req,res)=>{
+    try {
+        const result = await pool.query('UPDATE inventario SET inventarioestado = $1 WHERE inventarioid = $2',[false,req.params.id]);
+        res.status(200).json({message:"Se Borro existosamente"})
+    } catch (error) {
+        console.log(error)
+    }
+}
