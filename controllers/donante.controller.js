@@ -34,3 +34,12 @@ export const obtenerUnaDonacion = async(req,res)=>{
         return res.status(500).json({message:error.message})
     }
 };
+
+export const eliminarUnaDonacion = async(req,res)=>{
+    try {
+        const result =  await pool.query('DELETE FROM donante WHERE donanteid = $1',[req.params.id]);
+        res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+    }
+}
