@@ -4,9 +4,11 @@ export const guardarDonado = async(req,res)=>{
     try {
         const {institucionid,inventario} = req.body;
 
+        const resp = await pool.query('INSERT INTO cabecera_donado (institucionid) VALUES($1) RETURNING cabecera_donadoid',[institucionid])
+
         for(let i=0; i<inventario.length;i++){
-            const rs = await pool.query('INSERT INTO donado (institucionid,inventarioid,donadocantidad) VALUES($1,$2,$3)',
-                                        [institucionid,inventario[i].inventarioid,inventario[i].cantidad]);
+            const rs = await pool.query('INSERT INTO donado (cabecera_donadoid,inventarioid,donadocantidad) VALUES($1,$2,$3)',
+                                        [resp.rows[0].cabecera_donadoid,inventario[i].inventarioid,inventario[i].cantidad]);
 
             const rp = await pool.query('SELECT inventariocantidad FROM inventario WHERE inventarioid = $1 AND inventariocantidad = $2 ',[inventario[i].inventarioid,inventario[i].cantidad])
             if(rp.rows == 0){
@@ -15,7 +17,7 @@ export const guardarDonado = async(req,res)=>{
                 const rs2 = await pool.query('UPDATE inventario SET inventarioestado = false, inventariocantidad = 0 WHERE inventarioid = $1',[inventario[i].inventarioid]);
             }
         }
-        res.json("guardado")
+        res.status(200).json({message:"guardado"})
 
     } catch (error) {
         return res.status(500).json({message:error.message});
@@ -24,21 +26,29 @@ export const guardarDonado = async(req,res)=>{
 
 export const obtenerDonados = async(req,res)=>{
     try {
-        const query = `WITH DatosAgrupados AS (
-  SELECT
-  i.institucionid,
-    i.institucionnombre,
-    i.instituciondireccion,
-    STRING_AGG(i2.inventarionombre || ' (' || d.donadocantidad || ')', ', ') AS inventario_detallado,
-    SUM(d.donadocantidad) AS total_donado
-  FROM
-    Donado d
-  INNER JOIN Institucion i ON d.institucionid = i.institucionid
-  INNER JOIN Inventario i2 ON d.inventarioid = i2.inventarioid
-  GROUP BY
-    i.institucionnombre, i.instituciondireccion, i.institucionid
-)
-SELECT * FROM DatosAgrupados;` 
+        const query = `WITH DonacionesDetalle AS (
+                            SELECT 
+                                cd.cabecera_donadoid,
+                                i.inventarionombre,
+                                d.donadocantidad
+                            FROM 
+                                Donado d
+                            INNER JOIN Inventario i ON d.inventarioid = i.inventarioid
+                            INNER JOIN Cabecera_Donado cd ON d.cabecera_donadoid = cd.cabecera_donadoid
+                        )
+                        SELECT 
+                            cd.cabecera_donadoid,
+                            i.institucionnombre,
+                            i.instituciondireccion,
+                            STRING_AGG(dd.inventarionombre || ' (' || dd.donadocantidad || ')', ', ') AS inventario_donado,
+                            SUM(dd.donadocantidad) AS total_donado
+                        FROM 
+                            Cabecera_Donado cd
+                        INNER JOIN Institucion i ON cd.institucionid = i.institucionid
+                        INNER JOIN DonacionesDetalle dd ON cd.cabecera_donadoid = dd.cabecera_donadoid
+                        GROUP BY 
+                            cd.cabecera_donadoid, i.institucionnombre, i.instituciondireccion;`
+
         const result = await pool.query(query)
         res.status(200).json(result.rows)
     } catch (error) {
@@ -46,10 +56,14 @@ SELECT * FROM DatosAgrupados;`
     }
 };
 
-export const obtenerUnDonado = async(req,res)=>{
+
+
+export const eliminarDonado = async(req,res)=>{
     try {
-        
+        const rp = await pool.query('DELETE FROM donado WHERE cabecera_donadoid = $1',[req.params.id]);
+        const rp2 = await pool.query('DELETE FROM cabecera_donado WHERE cabecera_donadoid = $1',[req.params.id]);
+        res.status(200).json({message:"Eliminado Correctamente"});
     } catch (error) {
-        return res.status(500).json({message:error.message});
+        console.log(error)
     }
-};
+}
