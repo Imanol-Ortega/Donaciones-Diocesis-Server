@@ -3,8 +3,7 @@ import {pool} from "../db.js";
 export const guardarDonacion = async(req,res)=>{
     try {
         const {nombre,telefono,latitude,longitude,donacion,observacion} = req.body;
-        const result = await pool.query('INSERT INTO donante (donantenombre,donantetelefono,donantelatitud,donantelongitud,donantedonacion,donanteobservacion,donanteestado) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-                                        [nombre,telefono,latitude,longitude,donacion,observacion,0])
+        const result = await pool.query('INSERT INTO donante (donantenombre,donantetelefono,donantelatitud,donantelongitud,donantedonacion,donanteobservacion,donanteestado) VALUES ($1,$2,$3,$4,$5,$6,$7)', [nombre,telefono,latitude,longitude,donacion,observacion,0])
 
         res.status(200).json({message:'Guardado Correctamente'})
 
@@ -15,7 +14,7 @@ export const guardarDonacion = async(req,res)=>{
 
 export const obtenerDonacion = async(req,res) =>{
     try {
-        const result = await pool.query('SELECT * FROM donante WHERE donanteestado = false');
+        const result = await pool.query('SELECT donanteid,donantenombre,donantetelefono,donantedonacion FROM donante WHERE donanteestado = false');
 
         res.status(200).json(result.rows)
     } catch (error) {

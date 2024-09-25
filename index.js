@@ -6,6 +6,7 @@ import donanteRoutes from './routes/donante.routes.js'
 import inventarioRoutes from './routes/inventario.routes.js'
 import institucionRoutes from './routes/institucion.routes.js'
 import donadoRoutes from './routes/donado.routes.js'
+import userRoutes from './routes/user.routes.js'
 
 
 const app = express()
@@ -18,6 +19,9 @@ app.use(donanteRoutes);
 app.use(inventarioRoutes); 
 app.use(institucionRoutes);
 app.use(donadoRoutes);
+app.use(userRoutes);
+
+
 
 app.listen(PORT, ()=>{
     console.log(`Servidor corriendo en el puerto ${PORT}`);
